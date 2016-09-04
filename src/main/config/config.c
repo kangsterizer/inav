@@ -160,7 +160,7 @@ size_t custom_flash_memory_address = 0;
 #define CONFIG_START_FLASH_ADDRESS (custom_flash_memory_address)
 #else
 // use the last flash pages for storage
-#ifndef CONFIG_START_FLASH_ADDRESS 
+#ifndef CONFIG_START_FLASH_ADDRESS
 #define CONFIG_START_FLASH_ADDRESS (0x08000000 + (uint32_t)((FLASH_PAGE_SIZE * FLASH_PAGE_COUNT) - FLASH_TO_RESERVE_FOR_CONFIG))
 #endif
 #endif
@@ -430,6 +430,32 @@ void resetMixerConfig(mixerConfig_t *mixerConfig) {
 #endif
 }
 
+#ifdef ASYNC_GYRO_PROCESSING
+uint32_t getLooptime(void) {
+    return masterConfig.looptime;
+}
+
+uint16_t getAccUpdateFrequency(void) {
+    if (masterConfig.asyncMode == ASYNC_MODE_ALL) {
+        return masterConfig.accTaskFrequency;
+    } else {
+        return 1000000 / getLooptime();
+    }
+}
+
+uint16_t getAttiUpdateFrequency(void) {
+    if (masterConfig.asyncMode == ASYNC_MODE_ALL) {
+        return masterConfig.attiTaskFrequency;
+    } else {
+        return 1000000 / getLooptime();
+    }
+}
+
+uint8_t getAsyncMode(void) {
+    return masterConfig.asyncMode;
+}
+#endif
+
 uint8_t getCurrentProfile(void)
 {
     return masterConfig.current_profile_index;
@@ -572,6 +598,12 @@ static void resetConf(void)
     masterConfig.i2c_overclock = 0;
     masterConfig.gyroSync = 0;
     masterConfig.gyroSyncDenominator = 2;
+
+#ifdef ASYNC_GYRO_PROCESSING
+    masterConfig.accTaskFrequency = ACC_TASK_FREQUENCY_DEFAULT;
+    masterConfig.attiTaskFrequency = ATTI_TASK_FREQUENCY_DEFAULT;
+    masterConfig.asyncMode = ASYNC_MODE_NONE;
+#endif
 
     resetPidProfile(&currentProfile->pidProfile);
 

@@ -31,6 +31,12 @@ typedef struct master_t {
     uint8_t gyroSync;                       // Enable interrupt based loop
     uint8_t gyroSyncDenominator;            // Gyro sync Denominator
 
+#ifdef ASYNC_GYRO_PROCESSING
+    uint16_t accTaskFrequency;
+    uint16_t attiTaskFrequency;
+    uint8_t asyncMode;
+#endif
+
     motorMixer_t customMotorMixer[MAX_SUPPORTED_MOTORS];
 #ifdef USE_SERVOS
     servoMixer_t customServoMixer[MAX_SERVO_RULES];
