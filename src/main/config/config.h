@@ -113,8 +113,9 @@ void applyAndSaveBoardAlignmentDelta(int16_t roll, int16_t pitch);
 uint16_t getCurrentMinthrottle(void);
 
 #ifdef ASYNC_GYRO_PROCESSING
-uint32_t getLooptime(void);
-uint16_t getAccUpdateFrequency(void);
-uint16_t getAttiUpdateFrequency(void);
+uint32_t getPidUpdateRate(void);
+uint16_t getGyroUpdateRate(void);
+uint16_t getAccUpdateRate(void);
+uint16_t getAttiUpdateRate(void);
 uint8_t getAsyncMode(void);
 #endif
