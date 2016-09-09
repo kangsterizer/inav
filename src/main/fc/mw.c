@@ -501,7 +501,7 @@ void filterRc(bool isRXDataNew)
     #ifdef ASYNC_GYRO_PROCESSING
         biquadFilterInit(&filteredCycleTimeState, 1, getPidUpdateRate());
     #else
-        biquadFilterInit(&filteredCycleTimeState, 1, gyro.targetLooptime;
+        biquadFilterInit(&filteredCycleTimeState, 1, gyro.targetLooptime);
     #endif
         filterInitialised = true;
     }
