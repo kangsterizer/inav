@@ -26,12 +26,6 @@
 #include "pwm_mapping.h"
 #include "pwm_output.h"
 
-#if (MAX_MOTORS > MAX_SERVOS)
-#define MAX_PWM_OUTPUT_PORTS MAX_MOTORS
-#else
-#define MAX_PWM_OUTPUT_PORTS MAX_SERVOS
-#endif
-
 #if defined(STM32F40_41xxx) // must be multiples of timer clock
 #define ONESHOT125_TIMER_MHZ  12
 #define ONESHOT42_TIMER_MHZ   21
