@@ -907,9 +907,27 @@ void validateAndFixConfig(void)
          masterConfig.mixerMode = DEFAULT_MIXER;
      }
 
-    /* Avoid timer pre-devisor overflow when selecting Multishot protocol */
-    if (masterConfig.motor_pwm_protocol == PWM_TYPE_MULTISHOT && masterConfig.motor_pwm_rate < 2000) {
-        masterConfig.motor_pwm_rate = 2000;
+    /* Limitations of different protocols */
+    switch (masterConfig.motor_pwm_protocol) {
+    case PWM_TYPE_CONVENTIONAL: // Limited to 490 Hz
+        masterConfig.motor_pwm_rate = MIN(masterConfig.motor_pwm_rate, 490);
+        break;
+
+    case PWM_TYPE_ONESHOT125:   // Limited to 3900 Hz
+        masterConfig.motor_pwm_rate = MIN(masterConfig.motor_pwm_rate, 3900);
+        break;
+
+    case PWM_TYPE_ONESHOT42:    // 2-8 kHz
+        masterConfig.motor_pwm_rate = constrain(masterConfig.motor_pwm_rate, 2000, 8000);
+        break;
+
+    case PWM_TYPE_MULTISHOT:    // 2-16 kHz
+        masterConfig.motor_pwm_rate = constrain(masterConfig.motor_pwm_rate, 2000, 16000);
+        break;
+
+    case PWM_TYPE_BRUSHED:      // 500Hz - 32kHz
+        masterConfig.motor_pwm_rate = constrain(masterConfig.motor_pwm_rate, 500, 32000);
+        break;
     }
 }
 

@@ -207,10 +207,10 @@ static const char * const mixerNames[] = {
 
 // sync this with features_e
 static const char * const featureNames[] = {
-    "RX_PPM", "VBAT", "INFLIGHT_ACC_CAL", "RX_SERIAL", "MOTOR_STOP",
+    "RX_PPM", "VBAT", "UNUSED_1", "RX_SERIAL", "MOTOR_STOP",
     "SERVO_TILT", "SOFTSERIAL", "GPS", "FAILSAFE",
     "SONAR", "TELEMETRY", "CURRENT_METER", "3D", "RX_PARALLEL_PWM",
-    "RX_MSP", "RSSI_ADC", "LED_STRIP", "DISPLAY", "ONESHOT125",
+    "RX_MSP", "RSSI_ADC", "LED_STRIP", "DISPLAY", "UNUSED_2",
     "BLACKBOX", "CHANNEL_FORWARDING", "TRANSPONDER", "AIRMODE",
     "SUPEREXPO", "VTX", "RX_SPI", "SOFTSPI", NULL
 };
