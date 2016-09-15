@@ -80,6 +80,7 @@
 #include "flight/pid.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
+#include "flight/mixer_tricopter.h"
 #include "flight/navigation_rewrite.h"
 #include "flight/failsafe.h"
 
@@ -445,6 +446,10 @@ static const char * const lookupTableGyroLpf[] = {
     "10HZ"
 };
 
+static const char * const lookupServoFeedback[] = {
+    "VIRTUAL", "RSSI", "CURRENT", "EXT1"
+};
+
 static const char * const lookupTableFailsafeProcedure[] = {
     "SET-THR", "DROP", "RTH"
 };
@@ -492,6 +497,7 @@ typedef enum {
     TABLE_NRF24_RX,
 #endif
     TABLE_GYRO_LPF,
+    TABLE_SERVO_FEEDBACK,
     TABLE_FAILSAFE_PROCEDURE,
 #ifdef NAV
     TABLE_NAV_USER_CTL_MODE,
@@ -524,6 +530,7 @@ static const lookupTableEntry_t lookupTables[] = {
     { lookupTableNRF24RX, sizeof(lookupTableNRF24RX) / sizeof(char *) },
 #endif
     { lookupTableGyroLpf, sizeof(lookupTableGyroLpf) / sizeof(char *) },
+    { lookupServoFeedback, sizeof(lookupServoFeedback) / sizeof(char *) },
     { lookupTableFailsafeProcedure, sizeof(lookupTableFailsafeProcedure) / sizeof(char *) },
 #ifdef NAV
     { lookupTableNavControlMode, sizeof(lookupTableNavControlMode) / sizeof(char *) },
@@ -765,6 +772,11 @@ const clivalue_t valueTable[] = {
     { "tri_unarmed_servo",          VAR_INT8   | MASTER_VALUE | MODE_LOOKUP, &masterConfig.mixerConfig.tri_unarmed_servo, .config.lookup = { TABLE_OFF_ON }, 0 },
     { "servo_lowpass_freq",         VAR_INT16  | MASTER_VALUE, &masterConfig.mixerConfig.servo_lowpass_freq, .config.minmax = { 10,  400}, 0 },
     { "servo_lowpass_enable",       VAR_INT8   | MASTER_VALUE | MODE_LOOKUP, &masterConfig.mixerConfig.servo_lowpass_enable, .config.lookup = { TABLE_OFF_ON }, 0 },
+    { "tri_tail_motor_thrustfactor",VAR_INT16  | MASTER_VALUE, &masterConfig.mixerConfig.tri_tail_motor_thrustfactor, .config.minmax = { TAIL_THRUST_FACTOR_MIN, TAIL_THRUST_FACTOR_MAX }},
+    { "tri_tail_servo_speed",       VAR_INT16  | MASTER_VALUE, &masterConfig.mixerConfig.tri_tail_servo_speed, .config.minmax = { 0, 1000 }},
+    { "tri_servo_feedback",         VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, &masterConfig.tri_servo_feedback, .config.lookup = { TABLE_SERVO_FEEDBACK }},
+    { "tri_motor_acc_yaw_correction",VAR_UINT16| MASTER_VALUE, &masterConfig.mixerConfig.tri_motor_acc_yaw_correction, .config.minmax = { 0, TRI_MOTOR_ACC_CORRECTION_MAX }},
+    { "tri_motor_acceleration",     VAR_FLOAT  | MASTER_VALUE, &masterConfig.mixerConfig.tri_motor_acceleration, .config.minmax = { 0.01f, 1.0f }},
 #endif
 
     { "mode_range_logic_operator",  VAR_UINT8  | PROFILE_VALUE | MODE_LOOKUP,  &masterConfig.profile[0].modeActivationOperator, .config.lookup = { TABLE_AUX_OPERATOR }, 0 },
@@ -784,6 +796,8 @@ const clivalue_t valueTable[] = {
 
     { "tpa_rate",                   VAR_UINT8  | CONTROL_RATE_VALUE, &masterConfig.controlRateProfiles[0].dynThrPID, .config.minmax = { 0,  CONTROL_RATE_CONFIG_TPA_MAX}, 0 },
     { "tpa_breakpoint",             VAR_UINT16 | CONTROL_RATE_VALUE, &masterConfig.controlRateProfiles[0].tpa_breakpoint, .config.minmax = { PWM_RANGE_MIN,  PWM_RANGE_MAX}, 0 },
+    { "tri_dynamic_yaw_minthrottle",VAR_UINT16 | CONTROL_RATE_VALUE, &masterConfig.controlRateProfiles[0].tri_dynamic_yaw_minthrottle, .config.minmax = { 0, 500}},
+    { "tri_dynamic_yaw_maxthrottle",VAR_UINT16 | CONTROL_RATE_VALUE, &masterConfig.controlRateProfiles[0].tri_dynamic_yaw_maxthrottle,.config.minmax = { 0, 100}},
 
     { "failsafe_delay",             VAR_UINT8  | MASTER_VALUE,  &masterConfig.failsafeConfig.failsafe_delay, .config.minmax = { 0,  200 }, 0 },
     { "failsafe_off_delay",         VAR_UINT8  | MASTER_VALUE,  &masterConfig.failsafeConfig.failsafe_off_delay, .config.minmax = { 0,  200 }, 0 },

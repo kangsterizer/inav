@@ -64,6 +64,7 @@
 #include "telemetry/telemetry.h"
 
 #include "flight/mixer.h"
+#include "flight/mixer_tricopter.h"
 #include "flight/pid.h"
 #include "flight/imu.h"
 #include "flight/failsafe.h"
@@ -160,7 +161,7 @@ size_t custom_flash_memory_address = 0;
 #define CONFIG_START_FLASH_ADDRESS (custom_flash_memory_address)
 #else
 // use the last flash pages for storage
-#ifndef CONFIG_START_FLASH_ADDRESS 
+#ifndef CONFIG_START_FLASH_ADDRESS
 #define CONFIG_START_FLASH_ADDRESS (0x08000000 + (uint32_t)((FLASH_PAGE_SIZE * FLASH_PAGE_COUNT) - FLASH_TO_RESERVE_FOR_CONFIG))
 #endif
 #endif
@@ -402,6 +403,8 @@ static void resetControlRateConfig(controlRateConfig_t *controlRateConfig) {
     controlRateConfig->dynThrPID = 0;
     controlRateConfig->rcYawExpo8 = 20;
     controlRateConfig->tpa_breakpoint = 1500;
+    controlRateConfig->tri_dynamic_yaw_minthrottle = 250;
+    controlRateConfig->tri_dynamic_yaw_maxthrottle = 60;
 
     for (uint8_t axis = 0; axis < FLIGHT_DYNAMICS_INDEX_COUNT; axis++) {
         if (axis == FD_YAW) {
@@ -420,6 +423,10 @@ void resetRcControlsConfig(rcControlsConfig_t *rcControlsConfig) {
     rcControlsConfig->alt_hold_deadband = 50;
 }
 
+#ifndef DEFAULT_SERVO_FEEDBACK_SOURCE
+#define DEFAULT_SERVO_FEEDBACK_SOURCE TRI_SERVO_FB_VIRTUAL
+#endif
+
 void resetMixerConfig(mixerConfig_t *mixerConfig) {
     mixerConfig->yaw_motor_direction = 1;
     mixerConfig->yaw_jump_prevention_limit = 200;
@@ -427,6 +434,14 @@ void resetMixerConfig(mixerConfig_t *mixerConfig) {
     mixerConfig->tri_unarmed_servo = 1;
     mixerConfig->servo_lowpass_freq = 400;
     mixerConfig->servo_lowpass_enable = 0;
+    mixerConfig->tri_tail_motor_thrustfactor = 138;
+    mixerConfig->tri_tail_servo_speed = 300; // Default for BMS-210DMH at 5V
+    mixerConfig->tri_servo_min_adc = 0;
+    mixerConfig->tri_servo_mid_adc = 0;
+    mixerConfig->tri_servo_max_adc = 0;
+    mixerConfig->tri_servo_feedback = DEFAULT_SERVO_FEEDBACK_SOURCE;
+    mixerConfig->tri_motor_acc_yaw_correction = 27;
+    mixerConfig->tri_motor_acceleration = 0.18f;
 #endif
 }
 
@@ -551,7 +566,7 @@ static void resetConf(void)
 #else
     masterConfig.motor_pwm_rate = BRUSHLESS_MOTORS_PWM_RATE;
 #endif
-    masterConfig.servo_pwm_rate = 50;
+    masterConfig.servo_pwm_rate = 250;
 
 #ifdef GPS
     // gps/nav stuff
@@ -823,6 +838,10 @@ void activateConfig(void)
         &masterConfig.mixerConfig,
         &masterConfig.rxConfig
     );
+    if ((masterConfig.mixerMode == MIXER_TRI) || (masterConfig.mixerMode == MIXER_CUSTOM_TRI)) {
+        currentProfile->servoConf[5].angleAtMin = 40;
+        currentProfile->servoConf[5].angleAtMax = 40;
+    }
 
     imuRuntimeConfig.dcm_kp_acc = masterConfig.dcm_kp_acc / 10000.0f;
     imuRuntimeConfig.dcm_ki_acc = masterConfig.dcm_ki_acc / 10000.0f;

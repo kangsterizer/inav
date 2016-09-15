@@ -119,6 +119,7 @@ typedef struct master_t {
 
     uint8_t magic_ef;                       // magic number, should be 0xEF
     uint8_t chk;                            // XOR checksum
+    uint8_t tri_servo_feedback;
 } master_t;
 
 extern master_t masterConfig;
