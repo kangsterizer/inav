@@ -64,6 +64,7 @@
 #include "telemetry/telemetry.h"
 
 #include "flight/mixer.h"
+#include "flight/mixer_tricopter.h"
 #include "flight/pid.h"
 #include "flight/imu.h"
 #include "flight/failsafe.h"
@@ -402,6 +403,8 @@ static void resetControlRateConfig(controlRateConfig_t *controlRateConfig) {
     controlRateConfig->dynThrPID = 0;
     controlRateConfig->rcYawExpo8 = 20;
     controlRateConfig->tpa_breakpoint = 1500;
+    controlRateConfig->tri_dynamic_yaw_minthrottle = 250;
+    controlRateConfig->tri_dynamic_yaw_maxthrottle = 60;
 
     for (uint8_t axis = 0; axis < FLIGHT_DYNAMICS_INDEX_COUNT; axis++) {
         if (axis == FD_YAW) {
@@ -551,7 +554,7 @@ static void resetConf(void)
 #else
     masterConfig.motor_pwm_rate = BRUSHLESS_MOTORS_PWM_RATE;
 #endif
-    masterConfig.servo_pwm_rate = 50;
+    masterConfig.servo_pwm_rate = 250;
 
 #ifdef GPS
     // gps/nav stuff
@@ -823,6 +826,10 @@ void activateConfig(void)
         &masterConfig.mixerConfig,
         &masterConfig.rxConfig
     );
+    if ((masterConfig.mixerMode == MIXER_TRI) || (masterConfig.mixerMode == MIXER_CUSTOM_TRI)) {
+        currentProfile->servoConf[5].angleAtMin = 40;
+        currentProfile->servoConf[5].angleAtMax = 40;
+    }
 
     imuRuntimeConfig.dcm_kp_acc = masterConfig.dcm_kp_acc / 10000.0f;
     imuRuntimeConfig.dcm_ki_acc = masterConfig.dcm_ki_acc / 10000.0f;

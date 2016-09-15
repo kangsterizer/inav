@@ -152,6 +152,7 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT + 1] = {
     { BOXSURFACE, "SURFACE;", 33 },
     { BOXFLAPERON, "FLAPERON;", 34 },
     { BOXTURNASSIST, "TURN ASSIST;", 35 },
+    { BOXTAILTUNE, "TAIL TUNE;", 36 },
     { CHECKBOX_ITEM_COUNT, NULL, 0xFF }
 };
 
@@ -546,6 +547,9 @@ void mspInit(void)
         activeBoxIds[activeBoxIdCount++] = BOXSERVO2;
         activeBoxIds[activeBoxIdCount++] = BOXSERVO3;
     }
+    if ((masterConfig.mixerMode == MIXER_TRI) || (masterConfig.mixerMode == MIXER_CUSTOM_TRI)) {
+        activeBoxIds[activeBoxIdCount++] = BOXTAILTUNE;
+    }
 #endif
 
 #ifdef BLACKBOX
@@ -600,6 +604,7 @@ static uint32_t packFlightModeFlags(void)
         IS_ENABLED(IS_RC_MODE_ACTIVE(BOXSURFACE)) << BOXSURFACE |
         IS_ENABLED(FLIGHT_MODE(FLAPERON)) << BOXFLAPERON |
         IS_ENABLED(FLIGHT_MODE(TURN_ASSISTANT)) << BOXTURNASSIST |
+        IS_ENABLED(FLIGHT_MODE(TAILTUNE_MODE)) << BOXTAILTUNE |
         IS_ENABLED(IS_RC_MODE_ACTIVE(BOXHOMERESET)) << BOXHOMERESET;
 
     for (i = 0; i < activeBoxIdCount; i++) {
