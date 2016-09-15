@@ -394,6 +394,7 @@ void processRx(void)
         DISABLE_FLIGHT_MODE(FLAPERON);
     }
 
+#if 0
     /* turn assistant mode */
     if (IS_RC_MODE_ACTIVE(BOXTURNASSIST)) {
         if (!FLIGHT_MODE(TURN_ASSISTANT)) {
@@ -402,6 +403,7 @@ void processRx(void)
     } else {
         DISABLE_FLIGHT_MODE(TURN_ASSISTANT);
     }
+#endif
 
     /* tail tune mode */
     if (IS_RC_MODE_ACTIVE(BOXTAILTUNE)) {
