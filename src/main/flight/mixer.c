@@ -50,6 +50,7 @@
 #include "sensors/gyro.h"
 
 #include "flight/mixer.h"
+#include "flight/mixer_tricopter.h"
 #include "flight/failsafe.h"
 #include "flight/pid.h"
 #include "flight/imu.h"
@@ -442,6 +443,11 @@ void mixerInit(mixerMode_e mixerMode, motorMixer_t *initialCustomMotorMixers, se
         servo[i] = DEFAULT_SERVO_MIDDLE;
     }
 
+    // Triflight servo mixer
+    if ((currentMixerMode == MIXER_TRI) || (currentMixerMode == MIXER_CUSTOM_TRI)) {
+        triInitMixer(&servoConf[SERVO_RUDDER], &servo[SERVO_RUDDER]);
+    }
+
     /*
      * If mixer has predefined servo mixes, load them
      */
@@ -773,6 +779,7 @@ void mixTable(void)
 
         for (i = 0; i < motorCount; i++) {
             motor[i] = rpyMix[i] + constrain(throttleCommand * currentMixer[i].throttle, throttleMin, throttleMax);
+	    motor[i] += triGetMotorCorrection(i);
 
             if (isFailsafeActive) {
                 motor[i] = constrain(motor[i], escAndServoConfig->mincommand, escAndServoConfig->maxthrottle);

@@ -95,5 +95,5 @@ uint8_t getCurrentControlRateProfile(void);
 void changeControlRateProfile(uint8_t profileIndex);
 bool canSoftwareSerialBeUsed(void);
 void applyAndSaveBoardAlignmentDelta(int16_t roll, int16_t pitch);
-
 uint16_t getCurrentMinthrottle(void);
+uint16_t getCurrentMaxthrottle(void);

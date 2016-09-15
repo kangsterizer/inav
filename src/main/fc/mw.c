@@ -394,13 +394,22 @@ void processRx(void)
         DISABLE_FLIGHT_MODE(FLAPERON);
     }
 
-    /* Turn assistant mode */
+    /* turn assistant mode */
     if (IS_RC_MODE_ACTIVE(BOXTURNASSIST)) {
         if (!FLIGHT_MODE(TURN_ASSISTANT)) {
             ENABLE_FLIGHT_MODE(TURN_ASSISTANT);
         }
     } else {
         DISABLE_FLIGHT_MODE(TURN_ASSISTANT);
+    }
+
+    /* tail tune mode */
+    if (IS_RC_MODE_ACTIVE(BOXTAILTUNE)) {
+        if (!FLIGHT_MODE(TAILTUNE_MODE)) {
+            ENABLE_FLIGHT_MODE(TAILTUNE_MODE);
+        }
+    } else {
+        DISABLE_FLIGHT_MODE(TAILTUNE_MODE);
     }
 
 #if defined(MAG)
@@ -773,3 +782,25 @@ void taskLedStrip(void)
     }
 }
 #endif
+bool isRcAxisWithinDeadband(int32_t axis)
+{
+    int32_t tmp = MIN(ABS(rcData[axis] - masterConfig.rxConfig.midrc), 500);
+    bool ret = false;
+    if (axis == ROLL || axis == PITCH)
+    {
+        if (tmp <= currentProfile->rcControlsConfig.deadband)
+        {
+            ret = true;
+        }
+    }
+    else
+    {
+        if (tmp <= currentProfile->rcControlsConfig.deadband)
+        {
+            ret = true;
+        }
+    }
+
+    return ret;
+}
+
